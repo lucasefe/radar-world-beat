@@ -1,5 +1,5 @@
 var RadarClient = require('./node_modules/radar_client/lib/radar_client.js'),
-    clients = [],
+    clients = {},
     RADAR_PORT = process.env.RADAR_PORT || 8000,
     NEW_INTERVAL = 3000,
     REMOVE_INTERVAL = 30000,
@@ -26,6 +26,7 @@ function newCoordinates(origin) {
 
 function removeClient(client) {
   client.presence('map').set('offline');
+  delete clients[client.name];
 }
 
 function newClient() {
@@ -49,7 +50,8 @@ function newClient() {
     });
   });
 
-  clients.push(client);
+  clients[client.name] = client;
+
   setTimeout(function() {
     removeClient(client);
   }, Math.random() * REMOVE_INTERVAL);
