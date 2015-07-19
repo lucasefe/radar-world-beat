@@ -9,7 +9,7 @@ var Radar = require('radar'),
     },
     httpServer, radarServer;
 
-Minilog.pipe(process.stdout);
+// Minilog.pipe(process.stdout);
 
 httpServer = http.createServer(p404);
 radarServer = new Radar.server();
