@@ -17,9 +17,9 @@ var configuration = {
     },
     lastNumber = 0,
     servers = {
-      '8000': { label: '0', color: '3399FF'},
-      '8001': { label: '1', color: 'FFFF66'}, // RGB
-      '8002': { label: '2', color: 'FF3300'}
+      '8000': { label: 'A', color: '3399FF'},
+      '8001': { label: 'B', color: 'FFFF66'}, // RGB
+      '8002': { label: 'C', color: 'FF3300'}
     },
     clients = {},
     map;
@@ -49,8 +49,8 @@ function addClientToMap(map, clientId, clientData) {
 
   location = new google.maps.LatLng(clientData.lat, clientData.lng);
 
-  var icon = servers[clientData.port];
-  icon = 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + icon.label + '|' + icon.color + '|000000';
+  var iconData = servers[clientData.port];
+  icon = 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + iconData.label + '|' + iconData.color + '|000000';
 
   marker = new google.maps.Marker({
     position: location,
