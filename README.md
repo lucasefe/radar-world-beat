@@ -5,7 +5,10 @@ Just another radar sample project, using presence, and faking activity from many
 ## Installation
 
     npm install 
-    
+
+Install forman (globally) foreman, if youd don't have it. 
+
+    npm install -g foreman
 
 ## Usage
 
