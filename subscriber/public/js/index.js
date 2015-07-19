@@ -45,6 +45,7 @@ function addClientToMap(map, clientId, clientData) {
 
   marker = new google.maps.Marker({
     position: location,
+    animation: google.maps.Animation.DROP,
     map: map 
   });
 
