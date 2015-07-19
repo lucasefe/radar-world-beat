@@ -6,12 +6,11 @@ Just another radar sample project, using presence, and faking activity from many
 
     npm install 
 
-Install forman (globally) foreman, if youd don't have it. 
+Install forman (globally) foreman, if you don't have it. 
 
     npm install -g foreman
 
 ## Usage
-
 
 Run node foreman to start a few processes at the same time:
 
