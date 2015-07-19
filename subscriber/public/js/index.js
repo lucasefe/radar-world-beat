@@ -1,4 +1,5 @@
 /* global google:true, document: true, window: true, RadarClient: true */
+
 var configuration = {
       host: 'localhost',
       port: 8000,
@@ -8,43 +9,61 @@ var configuration = {
       accountName: 'test'
     },
     mapOptions = {
-      center: { lat: 37.7749300, lng: -122.4194200},
+      center: { 
+        lat: 37.7749300, 
+        lng: -122.4194200
+      },
       zoom: 13
     },
-    markers = {},
+    clients = {},
     map;
 
 function forEachClient(data, callback) {
-  Object.keys(data.value).forEach(function(userId) {
-    Object.keys(data.value[userId].clients).forEach(function(clientId) {
-      callback(clientId, data.value[userId].clients[clientId]);
+  var value = data.value;
+
+  Object.keys(value).forEach(function(userId) {
+    var clients = value[userId].clients;
+
+    Object.keys(clients).forEach(function(clientId) {
+      var clientData = clients[clientId];
+
+      callback(clientId, clientData);
     });
   });
 }
 
-function addClientToMap(map, clientId, data) {
-  var infowindow, location, marker;
+function addClientToMap(map, clientId, clientData) {
+  var infoWindow, location, marker;
 
-  if (!data) { return; }
+  if (!clientId || !clientData) { return; }
 
-  infowindow = new google.maps.InfoWindow({ content: 'Client: ' + data.name });
-  location = new google.maps.LatLng(data.lat, data.lng);
-  marker = new google.maps.Marker({ position: location, map: map });
-
-  console.info('Client ' + clientId + ' is going online'); 
-  google.maps.event.addListener(marker, 'click', function() {
-    infowindow.open(map,marker);
+  infoWindow = new google.maps.InfoWindow({
+    content: 'Client: ' + clientData.name
   });
 
-  markers[clientId] = marker;
+  location = new google.maps.LatLng(clientData.lat, clientData.lng);
 
-  return location;
+  marker = new google.maps.Marker({
+    position: location,
+    map: map 
+  });
+
+  google.maps.event.addListener(marker, 'click', function() {
+    infoWindow.open(map,marker);
+  });
+
+  console.info('Client ' + clientId + ' is going online. ', clientData.port); 
+
+  clients[clientId] = {
+    marker: marker,
+    data: clientData
+  };
 }
 
 function removeMarkerToMap(clientId) {
-  if (markers[clientId]) {
-    console.warn('Client ' + clientId + ' is going offline'); 
-    markers[clientId].setMap(null);
+  if (clients[clientId]) {
+    console.warn('Client ' + clientId + ' is going offline. ', clients[clientId].data.port); 
+    clients[clientId].marker.setMap(null);
   }
 }
 
@@ -52,13 +71,13 @@ function initializeMap() {
   map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 }
 
-function startRadar() {
+function startSubscribing() {
   RadarClient.configure(configuration).alloc('map', function() {
     RadarClient.presence('map').on(function(data){
       if (data.op === 'client_online') {
         addClientToMap(map, data.value.clientId, data.value.clientData);
       } else if (data.op === 'client_offline') {
-        removeMarkerToMap(data.value.clientId, data.value.clientData);
+        removeMarkerToMap(data.value.clientId);
       }
     }).sync({version: 2}, function(data) {
       forEachClient(data, function(clientId, clientData) {
@@ -69,5 +88,6 @@ function startRadar() {
 }
 
 google.maps.event.addDomListener(window, 'load', initializeMap);
-document.addEventListener('DOMContentLoaded', startRadar);
+
+document.addEventListener('DOMContentLoaded', startSubscribing);
 

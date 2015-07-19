@@ -1,11 +1,14 @@
 var RadarClient = require('./node_modules/radar_client/lib/radar_client.js'),
     clients = [],
-    sfCoordinates = { 
+    RADAR_PORT = process.env.RADAR_PORT || 8000,
+    NEW_INTERVAL = 3000,
+    REMOVE_INTERVAL = 30000,
+    MAP_CENTER = { 
       lat: 37.7749300,
       lng: -122.4194200
     };
 
-var newCoordinates = function(origin) {
+function newCoordinates(origin) {
   var u = Math.random(), 
       v = Math.random(),
       radius = 0.05,
@@ -25,11 +28,11 @@ function removeClient(client) {
   client.presence('map').set('offline');
 }
 
-var newClient = function () {
+function newClient() {
   var client = new RadarClient(),
       configuration = {
         host: 'localhost',
-        port: 8000,
+        port: RADAR_PORT,
         secure: false,
         userId: Math.floor(Math.random() * 1000),
         userType: 2,
@@ -37,9 +40,10 @@ var newClient = function () {
       };
 
   client.configure(configuration).alloc('map', function() {
-    var data = newCoordinates(sfCoordinates);
+    var data = newCoordinates(MAP_CENTER);
 
     data.name = client.name;
+    data.port = RADAR_PORT;
     client.presence('map').set('online', data, function() {
       console.log('client: ', client.name, configuration.userId);
     });
@@ -48,9 +52,9 @@ var newClient = function () {
   clients.push(client);
   setTimeout(function() {
     removeClient(client);
-  }, Math.random() * 10000);
+  }, Math.random() * REMOVE_INTERVAL);
 
-  setTimeout(newClient, Math.random() * 10000);
+  setTimeout(newClient, Math.random() * NEW_INTERVAL);
 };
 
-setTimeout(newClient, Math.random() * 10000);
+setTimeout(newClient, Math.random() * NEW_INTERVAL);
