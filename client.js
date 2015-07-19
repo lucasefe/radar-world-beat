@@ -21,6 +21,10 @@ var newCoordinates = function(origin) {
   });
 };
 
+function removeClient(client) {
+  client.presence('map').set('offline');
+}
+
 var newClient = function () {
   var client = new RadarClient(),
       configuration = {
@@ -36,13 +40,15 @@ var newClient = function () {
     var data = newCoordinates(sfCoordinates);
 
     data.name = client.name;
-
     client.presence('map').set('online', data, function() {
       console.log('client: ', client.name, configuration.userId);
     });
   });
 
   clients.push(client);
+  setTimeout(function() {
+    removeClient(client);
+  }, Math.random() * 10000);
 
   setTimeout(newClient, Math.random() * 10000);
 };
