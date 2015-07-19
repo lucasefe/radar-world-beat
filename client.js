@@ -1,6 +1,25 @@
 var RadarClient = require('./node_modules/radar_client/lib/radar_client.js'),
-    INTERVAL = 10000,
-    clients = [];
+    clients = [],
+    sfCoordinates = { 
+      lat: 37.7749300,
+      lng: -122.4194200
+    };
+
+var newCoordinates = function(origin) {
+  var u = Math.random(), 
+      v = Math.random(),
+      radius = 0.05,
+      w = radius * Math.sqrt(u),
+      t = 2 * Math.PI * v,
+      x = w * Math.cos(t),
+      y = w * Math.sin(t),
+      x2 = x / Math.cos(origin.lng);
+
+  return({
+    lat: y+origin.lat,
+    lng: x2+origin.lng
+  });
+};
 
 var newClient = function () {
   var client = new RadarClient(),
@@ -14,14 +33,18 @@ var newClient = function () {
       };
 
   client.configure(configuration).alloc('map', function() {
-    client.presence('map').set('online', function() {
+    var data = newCoordinates(sfCoordinates);
+
+    data.name = client.name;
+
+    client.presence('map').set('online', data, function() {
       console.log('client: ', client.name, configuration.userId);
     });
   });
 
   clients.push(client);
 
-  setTimeout(newClient, INTERVAL);
+  setTimeout(newClient, Math.random() * 10000);
 };
 
-setTimeout(newClient, INTERVAL);
+setTimeout(newClient, Math.random() * 10000);

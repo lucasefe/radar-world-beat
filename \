@@ -14,15 +14,14 @@ var configuration = {
     markers = [],
     map;
 
-function forEachClient(data, callback) {
-  Object.keys(data.value).forEach(function(userId) {
-    Object.keys(data.value[userId].clients).forEach(function(clientId) {
-      callback(clientId, data.value[userId].clients[clientId]);
-    });
-  });
-}
+var forEachClient = function(data) {
 
-function drawMarkerOnMap(map, data) {
+      Object.keys(data.value).forEach(function(userId) {
+        Object.keys(data.value[userId].clients).forEach(function(clientId) {
+        });
+      });
+};
+var drawMarkerOnMap = function(map, data) {
   if (!data) { return; }
 
   var infowindow = new google.maps.InfoWindow({ content: 'Client: ' + data.name }),
@@ -36,13 +35,16 @@ function drawMarkerOnMap(map, data) {
   markers.push(marker);
 
   return location;
-}
+};
 
-function initializeMap() {
+var initializeMap = function() {
+
   map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-}
+};
 
-function startRadar() {
+google.maps.event.addDomListener(window, 'load', initializeMap);
+
+document.addEventListener('DOMContentLoaded', function() { 
   RadarClient.configure(configuration).alloc('map', function() {
     RadarClient.presence('map').on(function(data){
       drawMarkerOnMap(map, data.value.clientData);
@@ -52,8 +54,4 @@ function startRadar() {
       });
     });
   });
-}
-
-google.maps.event.addDomListener(window, 'load', initializeMap);
-document.addEventListener('DOMContentLoaded', startRadar);
-
+});
