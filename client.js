@@ -46,7 +46,7 @@ function newClient() {
     data.name = client.name;
     data.port = RADAR_PORT;
     client.presence('map').set('online', data, function() {
-      console.log('client: ', client.name, configuration.userId);
+      console.log('client ', client.name, configuration.userId, RADAR_PORT);
     });
   });
 

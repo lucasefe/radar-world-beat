@@ -19,7 +19,7 @@ var configuration = {
     servers = {
       '8000': { label: 'A', color: '3399FF'},
       '8001': { label: 'B', color: 'FFFF66'}, // RGB
-      '8002': { label: 'C', color: 'FF3300'}
+      '8002': { label: 'R', color: 'FF3300'}
     },
     clients = {},
     map;
