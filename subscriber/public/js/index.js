@@ -17,9 +17,9 @@ var configuration = {
     },
     lastNumber = 0,
     servers = {
-      '8000': { label: 'A', color: '3399FF'},
-      '8001': { label: 'B', color: 'FFFF66'}, // RGB
-      '8002': { label: 'R', color: 'FF3300'}
+      '8000': { label: 'A', color: 'EFF707'},
+      '8001': { label: 'B', color: 'F78307'}, // RGB
+      '8002': { label: 'R', color: 'F7073F'}
     },
     clients = {},
     map;
