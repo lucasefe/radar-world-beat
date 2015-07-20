@@ -2,6 +2,8 @@
 
 Just another radar sample project, using presence, and faking activity from many clients and servers.
 
+NOTE: This is just an example, and it's not really a useful project. 
+
 ## Installation
 
     npm install 
