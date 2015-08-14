@@ -1,12 +1,19 @@
 var RadarClient = require('radar_client').constructor,
+    memwatch = require('memwatch'),
     clients = {},
     RADAR_PORT = process.env.RADAR_PORT || 8000,
     NEW_INTERVAL = 3000,
-    REMOVE_INTERVAL = 30000,
+    REMOVE_INTERVAL = 20000,
     MAP_CENTER = { 
       lat: 37.7749300,
       lng: -122.4194200
     };
+
+
+process.title = 'RWB - Client on port ' + RADAR_PORT;
+memwatch.on('leak', function(info) { 
+  console.log(info);
+});
 
 function newCoordinates(origin) {
   var u = Math.random(), 
@@ -25,8 +32,11 @@ function newCoordinates(origin) {
 }
 
 function removeClient(client) {
-  client.presence('map').set('offline');
-  delete clients[client.name];
+  client.presence('map').set('offline', function() {
+    console.log('client ', client.name, ' is disconnecting. Total left: ', Object.keys(clients).length);
+    client.dealloc();
+    delete clients[client.name];
+  });
 }
 
 function newClient() {
@@ -34,6 +44,7 @@ function newClient() {
       configuration = {
         host: 'localhost',
         port: RADAR_PORT,
+//         path: '/engine.io-1.4.2', // ZRadar
         secure: false,
         userId: Math.floor(Math.random() * 1000),
         userType: 2,
@@ -45,16 +56,18 @@ function newClient() {
 
     data.name = client.name;
     data.port = RADAR_PORT;
+
     client.presence('map').set('online', data, function() {
+      clients[client.name] = client;
       console.log('client ', client.name, configuration.userId, RADAR_PORT);
+
+      setTimeout(function() {
+        removeClient(client);
+      }, Math.random() * REMOVE_INTERVAL);
+
     });
   });
 
-  clients[client.name] = client;
-
-  setTimeout(function() {
-    removeClient(client);
-  }, Math.random() * REMOVE_INTERVAL);
 
   setTimeout(newClient, Math.random() * NEW_INTERVAL);
 }

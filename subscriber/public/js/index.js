@@ -1,8 +1,9 @@
-/* global google:true, document: true, window: true, RadarClient: true */
+/* global google:true, document: true, window: true, RadarClient: true, jQuery:false */
 
 var configuration = {
       host: 'localhost',
       port: 8000,
+//      path: '/engine.io-1.4.2', // ZRadar
       secure: false,
       userId: 1,
       userType: 2,
@@ -15,7 +16,6 @@ var configuration = {
       },
       zoom: 13
     },
-    lastNumber = 0,
     servers = {
       '8000': { label: 'A', color: 'EFF707'},
       '8001': { label: 'B', color: 'F78307'}, // RGB
@@ -38,6 +38,11 @@ function forEachClient(data, callback) {
   });
 }
 
+function addToMessages(data) {
+  var li = jQuery('<li></li>').addClass('list-group-item').text(data.message.name + ' ' + data.event);
+  jQuery('#list').append(li);
+}
+
 function addClientToMap(map, clientId, clientData) {
   var infoWindow, location, marker;
 
@@ -49,8 +54,8 @@ function addClientToMap(map, clientId, clientData) {
 
   location = new google.maps.LatLng(clientData.lat, clientData.lng);
 
-  var iconData = servers[clientData.port];
-  icon = 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + iconData.label + '|' + iconData.color + '|000000';
+  var iconData = servers[clientData.port],
+      icon = 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + iconData.label + '|' + iconData.color + '|000000';
 
   marker = new google.maps.Marker({
     position: location,
@@ -73,7 +78,7 @@ function addClientToMap(map, clientId, clientData) {
 
 function removeMarkerToMap(clientId) {
   if (clients[clientId]) {
-    console.warn('Client ' + clientId + ' is going offline. ', clients[clientId].data.port); 
+    console.error('Client ' + clientId + ' is going offline. ', clients[clientId].data.port); 
     clients[clientId].marker.setMap(null);
   }
 }
@@ -84,6 +89,10 @@ function initializeMap() {
 
 function startSubscribing() {
   RadarClient.configure(configuration).alloc('map', function() {
+    RadarClient.message('list').on(function(message) {
+      addToMessages(message.value);
+    }).subscribe();
+
     RadarClient.presence('map').on(function(data){
       if (data.op === 'client_online') {
         addClientToMap(map, data.value.clientId, data.value.clientData);
